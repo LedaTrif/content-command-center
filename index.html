@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6c3df4" />
+  <title>Content Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="logo"><span>CC</span><strong>Content<br>Command Center</strong></div>
+      <nav id="nav"></nav>
+      <div class="brand-card">
+        <small>АКТИВЕН БРАНД</small>
+        <div><span class="brand-mark">ZB</span><b>ZaBarcelona</b></div>
+        <button>Смени бранда <span>⌄</span></button>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <div><p class="eyebrow">ВТОРНИК, 15 СЕПТЕМВРИ</p><h1>Добър ден, Леда <span>👋</span></h1><p>Твоят център за идеи, решения и съдържание.</p></div>
+        <div class="header-actions"><button class="icon-btn" id="themeBtn" title="Тема">◐</button><button class="primary" id="addBtn">＋ Добави идея</button></div>
+      </header>
+
+      <section class="stats" id="stats"></section>
+
+      <section class="toolbar">
+        <div class="tabs" id="tabs"></div>
+        <div class="filters">
+          <label class="search">⌕ <input id="search" placeholder="Търси идеи..." /></label>
+          <select id="tagFilter"><option value="all">Всички теми</option></select>
+          <select id="sort"><option value="new">Най-нови</option><option value="score">Най-релевантни</option><option value="urgent">Най-спешни</option></select>
+        </div>
+      </section>
+
+      <section class="section-heading"><div><h2 id="viewTitle">Нови идеи</h2><p id="viewSubtitle">Прегледай и реши с един клик.</p></div><span class="result-count" id="resultCount"></span></section>
+      <section class="cards" id="cards"></section>
+    </main>
+  </div>
+
+  <dialog id="ideaDialog">
+    <form method="dialog" id="ideaForm">
+      <div class="modal-head"><div><p class="eyebrow">НОВА ИДЕЯ</p><h2>Добави в Content Inbox</h2></div><button value="cancel" class="close">×</button></div>
+      <label>Заглавие<input required name="title" placeholder="За какво е идеята?" /></label>
+      <label>Кратко описание<textarea required name="summary" rows="4" placeholder="Основните факти или твоята идея..."></textarea></label>
+      <div class="form-grid"><label>Тема<select name="tag"><option>Барселона</option><option>Имоти</option><option>Туризъм</option><option>NIE и документи</option><option>Събития</option><option>Общност</option></select></label><label>Източник<input name="source" placeholder="URL или лично" /></label></div>
+      <div class="modal-actions"><button value="cancel" class="ghost">Отказ</button><button value="default" class="primary">Запази идея</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="exportDialog">
+    <div class="modal-head"><div><p class="eyebrow">ГОТОВО ЗА ПУБЛИКУВАНЕ</p><h2 id="exportTitle"></h2></div><button class="close" onclick="this.closest('dialog').close()">×</button></div>
+    <div class="channel-tabs"><button class="active">Instagram</button><button>Facebook</button><button>LinkedIn</button></div>
+    <textarea id="exportText" rows="12"></textarea>
+    <div class="modal-actions"><button class="ghost" id="downloadBtn">⇩ Експорт .txt</button><button class="primary" id="copyBtn">Копирай за Metricool</button></div>
+  </dialog>
+  <div id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
