@@ -1,0 +1,5 @@
+.card-actions button.selected{background:var(--purple-soft);border-color:var(--purple);color:var(--purple)}
+.card-actions .approve.selected{background:var(--purple);color:#fff}
+.active-labels{display:flex;gap:5px;flex-wrap:wrap;margin:-5px 0 12px}
+.active-labels:empty{display:none}
+.active-labels span{font-size:9px;background:#f1eff5;color:#6f687b;padding:4px 7px;border-radius:20px}
