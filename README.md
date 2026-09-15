@@ -5,12 +5,13 @@ Content approval dashboard built first for **ZaBarcelona**, with a brand-configu
 ## MVP features
 
 - Content Inbox with relevance and urgency scoring
-- One-click Approve / Reject / Later / Newsletter workflow
+- Multi-select workflow: Approved + Newsletter + Later + Ready can be combined
 - Tags for Barcelona, properties, tourism, documents, events and community
 - Search, filters, sorting and workflow statistics
 - Add custom ideas
 - Generate, copy and export post drafts for Metricool
 - Local persistence in the browser
+- Daily Barcelona news collection with GitHub Actions
 - Responsive desktop and mobile interface
 
 ## Run locally
