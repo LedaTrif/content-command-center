@@ -12,21 +12,44 @@
   <link rel="stylesheet" href="multi.css" />
 </head>
 <body>
+  <section class="auth-screen" id="authScreen">
+    <div class="auth-visual">
+      <div class="auth-logo">CC</div>
+      <p class="eyebrow">CONTENT COMMAND CENTER</p>
+      <h1>От идея до готово съдържание.</h1>
+      <p>Събирай новини, одобрявай идеи и управлявай съдържанието на до три бранда от едно място.</p>
+      <div class="auth-benefits"><span>✓ Облачно запазване</span><span>✓ Отделни бранд профили</span><span>✓ Защитен личен достъп</span></div>
+    </div>
+    <div class="auth-panel">
+      <div class="auth-box">
+        <div class="auth-tabs"><button class="active" data-auth-mode="login">Вход</button><button data-auth-mode="register">Регистрация</button></div>
+        <h2 id="authTitle">Добре дошла отново</h2>
+        <p id="authSubtitle">Влез, за да продължиш към твоето съдържание.</p>
+        <form id="authForm">
+          <label id="nameField" hidden>Име<input name="name" autocomplete="name" placeholder="Твоето име" /></label>
+          <label>Имейл<input required name="email" type="email" autocomplete="email" placeholder="name@example.com" /></label>
+          <label>Парола<input required name="password" type="password" minlength="8" autocomplete="current-password" placeholder="Минимум 8 символа" /></label>
+          <button class="primary auth-submit" type="submit">Вход</button>
+        </form>
+        <p class="auth-message" id="authMessage"></p>
+      </div>
+    </div>
+  </section>
   <div class="app-shell">
     <aside class="sidebar">
       <div class="logo"><span>CC</span><strong>Content<br>Command Center</strong></div>
       <nav id="nav"></nav>
-      <div class="brand-card">
+      <div class="brand-card" id="brandCard">
         <small>АКТИВЕН БРАНД</small>
-        <div><span class="brand-mark">ZB</span><b>ZaBarcelona</b></div>
-        <button>Смени бранда <span>⌄</span></button>
+        <div><span class="brand-mark" id="brandMark">—</span><b id="activeBrandName">Няма бранд</b></div>
+        <button id="switchBrandBtn">Смени бранда <span>⌄</span></button>
       </div>
     </aside>
 
     <main>
       <header>
         <div><p class="eyebrow">ВТОРНИК, 15 СЕПТЕМВРИ</p><h1>Добър ден, Леда <span>👋</span></h1><p>Твоят център за идеи, решения и съдържание.</p></div>
-        <div class="header-actions"><button class="icon-btn" id="themeBtn" title="Тема">◐</button><button class="primary" id="addBtn">＋ Добави идея</button></div>
+        <div class="header-actions"><button class="icon-btn" id="profileBtn" title="Профил">◎</button><button class="primary" id="addBtn">＋ Добави идея</button></div>
       </header>
 
       <section class="stats" id="stats"></section>
@@ -61,7 +84,36 @@
     <textarea id="exportText" rows="12"></textarea>
     <div class="modal-actions"><button class="ghost" id="downloadBtn">⇩ Експорт .txt</button><button class="primary" id="copyBtn">Копирай за Metricool</button></div>
   </dialog>
+  <dialog id="profileDialog">
+    <form id="profileForm">
+      <div class="modal-head"><div><p class="eyebrow">МОЯТ ПРОФИЛ</p><h2>Персонализация</h2></div><button type="button" class="close" data-close>×</button></div>
+      <label>Име<input required name="display_name" placeholder="Как да те наричаме?" /></label>
+      <label>Кратко описание на бизнеса<textarea name="business_description" rows="3" placeholder="С какво се занимаваш и на кого помагаш?"></textarea></label>
+      <div class="form-grid"><label>Основен език<select name="default_language"><option value="bg">Български</option><option value="es">Español</option><option value="en">English</option></select></label><label>Имейл<input name="email" disabled /></label></div>
+      <label>AI предпочитания<textarea name="ai_preferences" rows="4" placeholder="Тон, думи, които да се избягват, стил, аудитория..."></textarea></label>
+      <div class="modal-actions"><button type="button" class="ghost" id="logoutBtn">Изход</button><button class="primary" type="submit">Запази профила</button></div>
+    </form>
+  </dialog>
+  <dialog id="brandsDialog">
+    <div class="modal-head"><div><p class="eyebrow">МОИТЕ БРАНДОВЕ</p><h2>Избери или редактирай</h2></div><button type="button" class="close" data-close>×</button></div>
+    <div id="brandList" class="brand-list"></div>
+    <button class="primary" id="newBrandBtn">＋ Нов бранд</button>
+    <p class="limit-note" id="brandLimitNote">До 3 бранда в безплатната версия.</p>
+  </dialog>
+  <dialog id="brandEditorDialog">
+    <form id="brandForm">
+      <input type="hidden" name="brand_id" />
+      <div class="modal-head"><div><p class="eyebrow">БРАНД ПРОФИЛ</p><h2 id="brandEditorTitle">Нов бранд</h2></div><button type="button" class="close" data-close>×</button></div>
+      <label>Име на бранда<input required name="name" maxlength="80" placeholder="Напр. ZaBarcelona" /></label>
+      <label>Лого до 2 MB<input name="logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" /></label>
+      <label>Описание<textarea name="description" rows="3" placeholder="Какво предлага брандът и за кого?"></textarea></label>
+      <div class="form-grid"><label>Език<select name="language"><option value="bg">Български</option><option value="es">Español</option><option value="en">English</option></select></label><label>Тон<input name="tone" value="приятелски, конкретен и полезен" /></label></div>
+      <div class="modal-actions"><button type="button" class="ghost" data-close>Отказ</button><button class="primary" type="submit">Запази бранда</button></div>
+    </form>
+  </dialog>
   <div id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.0/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
