@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="multi.css" />
+  <link rel="stylesheet" href="styles.css?v=20260916-2" />
+  <link rel="stylesheet" href="multi.css?v=20260916-2" />
 </head>
 <body>
   <section class="auth-screen" id="authScreen">
@@ -49,7 +49,7 @@
     <main>
       <header>
         <div><p class="eyebrow" id="todayLabel"></p><h1>Добър ден, Леда <span>👋</span></h1><p>Твоят център за идеи, решения и съдържание.</p></div>
-        <div class="header-actions"><button class="icon-btn" id="profileBtn" title="Профил">◎</button><button class="ghost" id="createPostBtn">↗ Създай пост</button><button class="primary" id="addBtn">＋ Добави идея</button></div>
+        <div class="header-actions"><button class="icon-btn" id="profileBtn" title="Профил">◎</button><button class="ghost" id="createPostBtn">↗ Създай пост</button><button class="primary" id="addBtn">＋ Добави ръчно</button></div>
       </header>
 
       <section class="onboarding" id="onboarding" hidden>
@@ -91,9 +91,10 @@
   </dialog>
   <dialog id="postRequestDialog">
     <form id="postRequestForm">
+      <input type="hidden" name="idea_id" id="selectedPostIdeaId" />
       <div class="modal-head"><div><p class="eyebrow">СЪЗДАВАНЕ НА ПОСТ</p><h2 id="requestTitle">Подготви за Metricool</h2></div><button type="button" class="close" data-close>×</button></div>
       <p class="request-note">Заявката ще бъде обработена от ChatGPT до около един час: проверен български текст, реалистично изображение 1080×1350 и подготовка в Metricool.</p>
-      <label>Идея за публикацията<select name="idea_id" id="postIdeaSelect" required></select></label>
+      <label id="postIdeaPicker">Избери одобрен пост<select id="postIdeaSelect"></select></label>
       <label>Metricool бранд<select name="target_brand" required><option value="za_barcelona">Za Barcelona</option><option value="imoti">Imoti</option></select></label>
       <fieldset class="channel-picker"><legend>Канали</legend><label><input type="checkbox" name="channels" value="instagram" checked> Instagram</label><label><input type="checkbox" name="channels" value="facebook" checked> Facebook</label><label><input type="checkbox" name="channels" value="linkedin" checked> LinkedIn</label></fieldset>
       <label>Дата и час за публикуване<input type="datetime-local" name="requested_for" required /></label>
@@ -130,7 +131,7 @@
   </dialog>
   <div id="toast"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.0/dist/umd/supabase.min.js"></script>
-  <script src="supabase-config.js"></script>
-  <script src="app.js"></script>
+  <script src="supabase-config.js?v=20260916-2"></script>
+  <script src="app.js?v=20260916-2"></script>
 </body>
 </html>
