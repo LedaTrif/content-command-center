@@ -13,6 +13,12 @@ Content approval dashboard built first for **ZaBarcelona**, with a brand-configu
 - Local persistence in the browser
 - Daily Barcelona news collection with GitHub Actions
 - Responsive desktop and mobile interface
+- Supabase email/password registration and sign-in
+- Cloud persistence protected with Row Level Security
+- Editable user profile and AI writing preferences
+- Up to three separate brand profiles per account
+- Brand logo upload, language and tone settings
+- Secure brand switching with isolated content libraries
 
 ## Run locally
 
@@ -32,14 +38,14 @@ Push this folder to a new GitHub repository. In **Settings → Pages**, select *
 
 1. Automated source collection through RSS/APIs and scheduled GitHub Actions
 2. AI fact extraction, duplicate detection and Bulgarian draft generation
-3. Supabase authentication and cloud database
-4. Brand profiles, tone, topics, sources and publishing rules
-5. Editorial calendar and newsletter builder
-6. Metricool direct integration when API access is available
+3. AI draft and image generation through protected Edge Functions
+4. Metricool draft creation and scheduling
+5. Canva connection per brand
+6. Editorial calendar and newsletter builder
 7. Analytics feedback loop: learn which topics are approved and perform best
 
 ## Data model for the scalable version
 
 `workspace → brands → sources → ideas → content assets → distribution channels`
 
-The current MVP deliberately keeps data in `localStorage` so the editorial workflow can be validated before adding infrastructure costs.
+Authentication, profiles, brands and content decisions are stored in Supabase. The public client uses only a publishable key; secret service keys must never be committed to this repository.
