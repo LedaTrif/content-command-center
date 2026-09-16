@@ -49,8 +49,13 @@
     <main>
       <header>
         <div><p class="eyebrow">ВТОРНИК, 15 СЕПТЕМВРИ</p><h1>Добър ден, Леда <span>👋</span></h1><p>Твоят център за идеи, решения и съдържание.</p></div>
-        <div class="header-actions"><button class="icon-btn" id="profileBtn" title="Профил">◎</button><button class="primary" id="addBtn">＋ Добави идея</button></div>
+        <div class="header-actions"><button class="icon-btn" id="profileBtn" title="Профил">◎</button><button class="ghost" id="createPostBtn">↗ Създай пост</button><button class="primary" id="addBtn">＋ Добави идея</button></div>
       </header>
+
+      <section class="onboarding" id="onboarding" hidden>
+        <div class="onboarding-copy"><p class="eyebrow">ПЪРВИ СТЪПКИ</p><h2>Подготви първия си пост</h2><p>Следвай трите стъпки. Приложението ще ти показва кое е готово и какво следва.</p></div>
+        <div class="onboarding-steps" id="onboardingSteps"></div>
+      </section>
 
       <section class="stats" id="stats"></section>
 
@@ -69,12 +74,12 @@
   </div>
 
   <dialog id="ideaDialog">
-    <form method="dialog" id="ideaForm">
-      <div class="modal-head"><div><p class="eyebrow">НОВА ИДЕЯ</p><h2>Добави в Content Inbox</h2></div><button value="cancel" class="close">×</button></div>
+    <form id="ideaForm">
+      <div class="modal-head"><div><p class="eyebrow">НОВА ИДЕЯ</p><h2>Добави в Content Inbox</h2></div><button type="button" class="close" data-close aria-label="Затвори">×</button></div>
       <label>Заглавие<input required name="title" placeholder="За какво е идеята?" /></label>
       <label>Кратко описание<textarea required name="summary" rows="4" placeholder="Основните факти или твоята идея..."></textarea></label>
       <div class="form-grid"><label>Тема<select name="tag"><option>Барселона</option><option>Имоти</option><option>Туризъм</option><option>NIE и документи</option><option>Събития</option><option>Общност</option></select></label><label>Източник<input name="source" placeholder="URL или лично" /></label></div>
-      <div class="modal-actions"><button value="cancel" class="ghost">Отказ</button><button value="default" class="primary">Запази идея</button></div>
+      <div class="modal-actions"><button type="button" class="ghost" data-close>Отказ</button><button type="submit" class="primary">Запази идея</button></div>
     </form>
   </dialog>
 
@@ -86,9 +91,9 @@
   </dialog>
   <dialog id="postRequestDialog">
     <form id="postRequestForm">
-      <input type="hidden" name="idea_id" />
       <div class="modal-head"><div><p class="eyebrow">СЪЗДАВАНЕ НА ПОСТ</p><h2 id="requestTitle">Подготви за Metricool</h2></div><button type="button" class="close" data-close>×</button></div>
       <p class="request-note">Заявката ще бъде обработена от ChatGPT до около един час: проверен български текст, реалистично изображение 1080×1350 и подготовка в Metricool.</p>
+      <label>Идея за публикацията<select name="idea_id" id="postIdeaSelect" required></select></label>
       <label>Metricool бранд<select name="target_brand" required><option value="za_barcelona">Za Barcelona</option><option value="imoti">Imoti</option></select></label>
       <fieldset class="channel-picker"><legend>Канали</legend><label><input type="checkbox" name="channels" value="instagram" checked> Instagram</label><label><input type="checkbox" name="channels" value="facebook" checked> Facebook</label><label><input type="checkbox" name="channels" value="linkedin" checked> LinkedIn</label></fieldset>
       <label>Дата и час за публикуване<input type="datetime-local" name="requested_for" required /></label>
