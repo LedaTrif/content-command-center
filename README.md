@@ -19,6 +19,8 @@ Content approval dashboard built first for **ZaBarcelona**, with a brand-configu
 - Up to three separate brand profiles per account
 - Brand logo upload, language and tone settings
 - Secure brand switching with isolated content libraries
+- Free post-request queue processed by a recurring ChatGPT automation
+- Metricool brand, channel and publishing-time selection
 
 ## Run locally
 
@@ -38,8 +40,8 @@ Push this folder to a new GitHub repository. In **Settings → Pages**, select *
 
 1. Automated source collection through RSS/APIs and scheduled GitHub Actions
 2. AI fact extraction, duplicate detection and Bulgarian draft generation
-3. AI draft and image generation through protected Edge Functions
-4. Metricool draft creation and scheduling
+3. ChatGPT automation for Bulgarian copy, 4:5 imagery and Metricool scheduling
+4. Request-status history and retry controls inside the dashboard
 5. Canva connection per brand
 6. Editorial calendar and newsletter builder
 7. Analytics feedback loop: learn which topics are approved and perform best
