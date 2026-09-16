@@ -84,6 +84,18 @@
     <textarea id="exportText" rows="12"></textarea>
     <div class="modal-actions"><button class="ghost" id="downloadBtn">⇩ Експорт .txt</button><button class="primary" id="copyBtn">Копирай за Metricool</button></div>
   </dialog>
+  <dialog id="postRequestDialog">
+    <form id="postRequestForm">
+      <input type="hidden" name="idea_id" />
+      <div class="modal-head"><div><p class="eyebrow">СЪЗДАВАНЕ НА ПОСТ</p><h2 id="requestTitle">Подготви за Metricool</h2></div><button type="button" class="close" data-close>×</button></div>
+      <p class="request-note">Заявката ще бъде обработена от ChatGPT до около един час: проверен български текст, реалистично изображение 1080×1350 и подготовка в Metricool.</p>
+      <label>Metricool бранд<select name="target_brand" required><option value="za_barcelona">Za Barcelona</option><option value="imoti">Imoti</option></select></label>
+      <fieldset class="channel-picker"><legend>Канали</legend><label><input type="checkbox" name="channels" value="instagram" checked> Instagram</label><label><input type="checkbox" name="channels" value="facebook" checked> Facebook</label><label><input type="checkbox" name="channels" value="linkedin" checked> LinkedIn</label></fieldset>
+      <label>Дата и час за публикуване<input type="datetime-local" name="requested_for" required /></label>
+      <p class="limit-note">Постът няма да бъде публикуван веднага. Ще бъде добавен в Metricool за избраната дата и час.</p>
+      <div class="modal-actions"><button type="button" class="ghost" data-close>Отказ</button><button class="primary" type="submit">Изпрати заявката</button></div>
+    </form>
+  </dialog>
   <dialog id="profileDialog">
     <form id="profileForm">
       <div class="modal-head"><div><p class="eyebrow">МОЯТ ПРОФИЛ</p><h2>Персонализация</h2></div><button type="button" class="close" data-close>×</button></div>
