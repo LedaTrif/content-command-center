@@ -16,7 +16,7 @@ async function handleAuth(event){event.preventDefault();const form=new FormData(
 function bulgarianAuthError(message){if(/invalid login/i.test(message))return'Грешен имейл или парола.';if(/already registered/i.test(message))return'Вече има регистрация с този имейл.';if(/password/i.test(message))return'Паролата трябва да бъде поне 8 символа.';return message}
 async function ensureProfile(){const user=session.user;const {data,error}=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();if(error)throw error;if(data){profile=data;return}const displayName=user.user_metadata?.display_name||user.email?.split('@')[0]||'';const created=await db.from('profiles').insert({id:user.id,display_name:displayName}).select().single();if(created.error)throw created.error;profile=created.data}
 async function loadBrands(){const result=await db.from('brands').select('*').order('created_at');if(result.error)throw result.error;brands=result.data||[];const remembered=localStorage.getItem(`ccc-active-brand-${session.user.id}`);activeBrand=brands.find(b=>b.id===remembered)||brands.find(b=>b.is_active)||brands[0]||null;if(activeBrand)localStorage.setItem(`ccc-active-brand-${session.user.id}`,activeBrand.id)}
-async function loadIdeas(){if(!activeBrand){ideas=[];render();return}const result=await db.from('content_ideas').select('*').eq('brand_id',activeBrand.id).order('created_at',{ascending:false});if(result.error)throw result.error;ideas=(result.data||[]).map(normalizeIdea);render()}
+async function loadIdeas(){if(!activeBrand){ideas=[];render();return}const result=await db.from('content_ideas').select('*').eq('brand_id',activeBrand.id).order('created_at',{ascending:false});if(result.error)throw result.error;ideas=(result.data||[]).map(normalizeIdea);render();const brand=activeBrand;try{const added=await importCollectedIdeas(brand);if(activeBrand?.id===brand.id&&added?.length){ideas=[...added.map(normalizeIdea),...ideas];render()}}catch(error){console.error(error);toast('Не успях да проверя за нови теми. Натисни „Провери отново“.')}}
 const normalizeIdea=i=>({...i,score:i.relevance,urgent:i.urgency,source:i.source_name,url:i.source_url,age:ageOf(i.created_at)});
 async function loadPostRequestState(){const result=await db.from('post_requests').select('id').limit(1);if(result.error)throw result.error;hasPostRequest=Boolean(result.data?.length)}
 async function bootUser(){if(bootPromise)return bootPromise;bootPromise=(async()=>{$('#authScreen').classList.add('hidden');try{await ensureProfile();await Promise.all([loadBrands(),loadPostRequestState()]);updateIdentity();await loadIdeas();if(!brands.length&&!$('#brandEditorDialog').open)openBrandEditor()}catch(error){console.error(error);toast('Не успях да заредя профила. Опитай отново.')}})().finally(()=>{bootPromise=null});return bootPromise}
@@ -52,3 +52,33 @@ $('#addBtn').onclick=openIdeaDialog;$('#createPostBtn').onclick=()=>openPostRequ
 $('#tagFilter').innerHTML+=tags.map(t=>`<option>${t}</option>`).join('');['search','tagFilter','sort'].forEach(id=>$('#'+id).addEventListener(id==='search'?'input':'change',renderCards));
 db.auth.onAuthStateChange((_event,nextSession)=>{session=nextSession;if(session)bootUser();else{$('#authScreen').classList.remove('hidden');profile=null;ideas=[];brands=[];activeBrand=null;hasPostRequest=false;currentView='inbox'}});
 db.auth.getSession().then(({data})=>{session=data.session;if(session)bootUser();else $('#authScreen').classList.remove('hidden')});
+
+async function importCollectedIdeas(brand){
+  const name=brand.name.toLowerCase();
+  const propertyBrand=/imoti|имоти/.test(name);
+  if(!propertyBrand&&!/barcelona|барселона/.test(name))return;
+  const response=await fetch('data/news.json',{cache:'no-store'});
+  if(!response.ok)throw new Error('News feed unavailable');
+  const feed=await response.json();
+  if(!Array.isArray(feed))throw new Error('Invalid news feed');
+  const now=Date.now(),seen=new Set(),rows=[];
+  for(const item of feed){
+    const published=Date.parse(item.publishedAt);
+    if(!Number.isFinite(published)||published<now-7*86400000||published>now+7200000)continue;
+    if(propertyBrand?item.tag!=='Имоти':item.tag==='Имоти')continue;
+    if(typeof item.title!=='string'||!item.title.trim())continue;
+    let url;try{url=new URL(item.url);if(!['https:','http:'].includes(url.protocol))continue}catch{continue}
+    if(seen.has(url.href)||ideas.some(i=>i.url===url.href))continue;
+    seen.add(url.href);
+    const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(session.user.id+'|'+brand.id+'|'+url.href)));
+    digest[6]=(digest[6]&15)|80;digest[8]=(digest[8]&63)|128;
+    const hex=[...digest.slice(0,16)].map(x=>x.toString(16).padStart(2,'0')).join('');
+    const id=hex.slice(0,8)+'-'+hex.slice(8,12)+'-'+hex.slice(12,16)+'-'+hex.slice(16,20)+'-'+hex.slice(20);
+    rows.push({id,user_id:session.user.id,brand_id:brand.id,title:item.title.slice(0,500),summary:'Публикувано на '+new Date(published).toLocaleDateString('bg-BG')+'. Предложение от новинарския поток — отвори източника и провери фактите преди одобрение.',tag:tags.includes(item.tag)?item.tag:'Барселона',source_name:String(item.source||'Google News').slice(0,200),source_url:url.href,relevance:80,urgency:5,labels:['inbox']});
+    if(rows.length>=12)break;
+  }
+  if(!rows.length)return [];
+  const result=await db.from('content_ideas').upsert(rows,{onConflict:'id',ignoreDuplicates:true}).select('*');
+  if(result.error)throw result.error;
+  return result.data||[];
+}
