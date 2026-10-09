@@ -65,7 +65,7 @@ function renderNav(){$('#nav').innerHTML=Object.entries(views).map(([key,[icon,l
 function renderStats(){const data=[['✦','inbox','Нови идеи'],['✓','approved','Одобрени'],['✉','newsletter','За бюлетина'],['↗','ready','Готови постове']];$('#stats').innerHTML=data.map(([icon,key,label])=>`<div class="stat"><span class="stat-icon">${icon}</span><div><strong>${ideas.filter(x=>has(x,key)).length}</strong><small>${label}</small></div></div>`).join('')}
 function renderTabs(){const tabs=[['inbox','Нови'],['approved','Одобрени'],['later','По-късно'],['newsletter','Бюлетин']];$('#tabs').innerHTML=tabs.map(([v,l])=>`<button class="tab ${currentView===v?'active':''}" data-view="${v}">${l}</button>`).join('');$$('.tab').forEach(b=>b.onclick=()=>{currentView=b.dataset.view;render()})}
 function tagClass(tag){return tag==='Имоти'?'property':tag==='Събития'?'event':''}
-function card(i){const btn=(label,text,extra='')=>`<button class="${has(i,label)?'selected ':''}${extra}" data-action="${label}" data-id="${i.id}">${has(i,label)?'✓ ':''}${text}</button>`,create=`<button class="${has(i,'ready')?'selected ':''}" data-create-post="${i.id}">${has(i,'ready')?'✓ ':''}Създай пост</button>`;const source=i.url?`<a href="${esc(i.url)}" target="_blank" rel="noopener">↗ ${esc(i.source||'Източник')}</a>`:`<span>↗ ${esc(i.source||'Лична идея')}</span>`;return `<article class="idea-card"><div class="card-top"><span class="tag ${tagClass(i.tag)}">${esc(i.tag)}</span><span class="score">● ${i.score}% релевантност</span></div><h3>${esc(i.title)}</h3><p>${esc(i.summary)}</p><div class="active-labels">${(i.labels||[]).filter(x=>x!=='inbox').map(x=>`<span>${esc(views[x]?.[1]||x)}</span>`).join('')}</div><div class="card-meta"><span>◷ ${esc(i.age)}</span>${source}<span>${i.urgent>=8?'⚡ Актуално сега':'◌ Evergreen'}</span></div><div class="card-actions">${btn('approved','Одобрено','approve')}${btn('later','По-късно')}${btn('newsletter','Бюлетин')}${create}<button class="more ${has(i,'rejected')?'selected':''}" data-action="rejected" data-id="${i.id}" title="Отхвърли">×</button></div></article>`}
+function card(i){const btn=(label,text,extra='')=>`<button class="${has(i,label)?'selected ':''}${extra}" data-action="${label}" data-id="${i.id}">${has(i,label)?'✓ ':''}${text}</button>`,create=`<button class="${has(i,'ready')?'selected ':''}" data-create-post="${i.id}">${has(i,'ready')?'✓ ':''}Създай пост</button>`;const source=i.url?`<a href="${esc(i.url)}" target="_blank" rel="noopener">↗ ${esc(i.source||'Източник')}</a>`:`<span>↗ ${esc(i.source||'Лична идея')}</span>`;return `<article class="idea-card"><div class="card-top"><span class="tag ${tagClass(i.tag)}">${esc(i.tag)}</span><span class="score">● ${i.score}% релевантност</span></div><h3>${esc(i.title)}</h3><p>${esc(i.summary)}</p><div class="active-labels">${(i.labels||[]).filter(x=>x!=='inbox').map(x=>`<span>${esc(views[x]?.[1]||x)}</span>`).join('')}</div><div class="card-meta"><span>◷ ${esc(i.age)}</span>${source}<span>${esc(i.summary?.startsWith('Тема без срок:')?'◌ Тема без срок':i.summary?.startsWith('Събитие:')?'◷ Събитие':'◌ Провери актуалността')}</span></div><div class="card-actions">${btn('approved','Одобрено','approve')}${btn('later','По-късно')}${btn('newsletter','Бюлетин')}${create}<button class="more ${has(i,'rejected')?'selected':''}" data-action="rejected" data-id="${i.id}" title="Отхвърли">×</button></div></article>`}
 function renderCards(){const q=$('#search').value.toLowerCase(),tag=$('#tagFilter').value,sort=$('#sort').value;let list=ideas.filter(i=>has(i,currentView)&&(!q||(i.title+' '+i.summary).toLowerCase().includes(q))&&(tag==='all'||i.tag===tag));list.sort((a,b)=>sort==='score'?b.score-a.score:sort==='urgent'?b.urgent-a.urgent:new Date(b.created_at)-new Date(a.created_at));$('#cards').innerHTML=list.length?list.map(card).join(''):`<div class="empty"><h3>Тук още няма съдържание</h3><p>${activeBrand?'Новините ще се появят след автоматичното събиране. Ръчното добавяне е само по желание.':'Създай първия си бранд, за да започнеш.'}</p><button class="primary" id="emptyAction">${activeBrand?'↻ Провери отново':'＋ Създай бранд'}</button></div>`;$('#resultCount').textContent=`${list.length} ${list.length===1?'идея':'идеи'}`;$$('[data-action]').forEach(b=>b.onclick=()=>toggleLabel(b.dataset.id,b.dataset.action));$$('[data-create-post]').forEach(b=>b.onclick=()=>openPostRequest(ideas.find(i=>i.id===b.dataset.createPost)));if($('#emptyAction'))$('#emptyAction').onclick=()=>activeBrand?loadIdeas({manual:true}):openBrandEditor()}
 function renderOnboarding(){const approved=ideas.filter(i=>has(i,'approved')&&!has(i,'rejected')),complete=activeBrand&&approved.length&&hasPostRequest;$('#onboarding').hidden=Boolean(complete);if(complete)return;const steps=[{done:Boolean(activeBrand),title:'1. Създай бранд',text:activeBrand?activeBrand.name:'Добави име, описание, език и лого.',action:'brand',button:activeBrand?'Прегледай':'Създай бранд'},{done:approved.length>0,title:'2. Одобри съдържание',text:approved.length?`${approved.length} ${approved.length===1?'пост е одобрен':'поста са одобрени'}.`:'Прегледай автоматично събраните предложения в Inbox.',action:'inbox',button:'Към Inbox'},{done:hasPostRequest,title:'3. Създай пост',text:hasPostRequest?'Първата заявка е изпратена.':'Избери одобрен пост, канали, дата и час.',action:'post',button:'Създай пост'}];$('#onboardingSteps').innerHTML=steps.map(s=>`<article class="onboarding-step ${s.done?'done':''}"><span class="step-check">${s.done?'✓':'○'}</span><div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p><button class="${s.done?'ghost':'primary'}" data-onboarding="${s.action}">${esc(s.button)}</button></div></article>`).join('');$$('[data-onboarding]').forEach(b=>b.onclick=()=>{if(b.dataset.onboarding==='brand')activeBrand?openBrands():openBrandEditor();if(b.dataset.onboarding==='inbox'){currentView='inbox';render();$('.section-heading').scrollIntoView({behavior:'smooth'})}if(b.dataset.onboarding==='post')openPostRequest()})}
 function render(){renderNav();renderStats();renderTabs();renderOnboarding();$('#viewTitle').textContent=views[currentView][1];$('#viewSubtitle').textContent=currentView==='inbox'?'Прегледай и избери един или няколко статуса.':'Една идея може да присъства в няколко папки.';renderCards();updateIdentity();updateIdeasCheck()}
@@ -94,30 +94,44 @@ db.auth.onAuthStateChange((_event,nextSession)=>{session=nextSession;if(session)
 db.auth.getSession().then(({data})=>{session=data.session;if(session)bootUser();else $('#authScreen').classList.remove('hidden')});
 
 async function importCollectedIdeas(brand,userId,existingIdeas){
-  const name=brand.name.toLowerCase();
-  const propertyBrand=/imoti|имоти/.test(name);
-  if(!propertyBrand&&!/barcelona|барселона/.test(name))return {rows:[],unsupported:true};
-  const response=await fetch('data/news.json',{cache:'no-store',signal:AbortSignal.timeout(15000)});
-  if(!response.ok)throw new Error('News feed unavailable');
-  const feed=await response.json();
-  if(!Array.isArray(feed))throw new Error('Invalid news feed');
+  const propertyBrand=/imoti|имоти/.test(brand.name.toLowerCase());
+  if(!propertyBrand&&!/barcelona|барселона/i.test(brand.name))return {rows:[],unsupported:true};
+  // Read the latest collector commit even when a bot commit does not rebuild Pages.
+  const sources=['https://raw.githubusercontent.com/LedaTrif/content-command-center/main/data/news.json','data/news.json'];
+  let feed;
+  for(const source of sources){
+    try{const response=await fetch(source,{cache:'no-store',signal:AbortSignal.timeout(10000)});
+      if(!response.ok)throw new Error('News feed unavailable');
+      const value=await response.json();if(!Array.isArray(value))throw new Error('Invalid feed');feed=value;break;
+    }catch(error){if(source===sources[sources.length-1])throw error;}
+  }
   const collectedAt=feed.reduce((latest,item)=>Date.parse(item.collectedAt)>Date.parse(latest||'1970-01-01')?item.collectedAt:latest,null);
-  const now=Date.now(),seen=new Set(),rows=[];
-  const sortedFeed=[...feed].sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt));
-  for(const item of sortedFeed){
+  const now=Date.now(),today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const normalizeTitle=t=>String(t).toLowerCase().replace(/barcelona/g,'барселона').split(' - ')[0].replace(/[^\p{L}\p{N}]/gu,'');
+  const seen=new Set(),rows=[],groups={news:[],event:[],evergreen:[]};
+  const ordered=[...feed].sort((a,b)=>Date.parse(b.publishedAt||b.collectedAt)-Date.parse(a.publishedAt||a.collectedAt));
+  for(const item of ordered){
+    const kind=item.kind||'news';if(!groups[kind])continue;
     const published=Date.parse(item.publishedAt);
-    if(!Number.isFinite(published)||published<now-7*86400000||published>now+7200000)continue;
+    if(kind==='news'&&(!Number.isFinite(published)||published<now-3*86400000||published>now+7200000))continue;
+    if(kind==='event'&&(!/^\d{4}-\d{2}-\d{2}$/.test(item.eventEnd||'')||item.eventEnd<today))continue;
     if(propertyBrand?item.tag!=='Имоти':item.tag==='Имоти')continue;
     if(typeof item.title!=='string'||!item.title.trim())continue;
     let url;try{url=new URL(item.url);if(!['https:','http:'].includes(url.protocol))continue}catch{continue}
-    if(seen.has(url.href)||existingIdeas.some(i=>i.url===url.href))continue;
-    seen.add(url.href);
-    const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(userId+'|'+brand.id+'|'+url.href)));
+    const key=item.key||url.href;
+    if(seen.has(key)||existingIdeas.some(i=>normalizeTitle(i.title)===normalizeTitle(item.title)))continue;
+    if(!item.key&&existingIdeas.some(i=>i.url===url.href))continue;
+    seen.add(key);
+    const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(userId+'|'+brand.id+'|'+key)));
     digest[6]=(digest[6]&15)|80;digest[8]=(digest[8]&63)|128;
     const hex=[...digest.slice(0,16)].map(x=>x.toString(16).padStart(2,'0')).join('');
     const id=hex.slice(0,8)+'-'+hex.slice(8,12)+'-'+hex.slice(12,16)+'-'+hex.slice(16,20)+'-'+hex.slice(20);
-    rows.push({id,user_id:userId,brand_id:brand.id,title:item.title.slice(0,500),summary:'Публикувано на '+new Date(published).toLocaleDateString('bg-BG')+'. Предложение от новинарския поток — отвори източника и провери фактите преди одобрение.',tag:tags.includes(item.tag)?item.tag:'Барселона',source_name:String(item.source||'Google News').slice(0,200),source_url:url.href,relevance:80,urgency:5,labels:['inbox']});
-    if(rows.length>=12)break;
+    if(existingIdeas.some(i=>i.id===id))continue;
+    groups[kind].push({id,user_id:userId,brand_id:brand.id,title:item.title.replace(/\bBarcelona\b/gi,'Барселона').slice(0,500),summary:String(item.summary||'Провери фактите в официалния източник преди одобрение.').slice(0,2000),tag:tags.includes(item.tag)?item.tag:'Барселона',source_name:String(item.source||'Официален източник').slice(0,200),source_url:url.href,relevance:80,urgency:kind==='evergreen'?3:kind==='event'?7:6,labels:['inbox']});
+  }
+  // Balanced batches; news must not crowd out events and evergreen ideas.
+  while(rows.length<12&&Object.values(groups).some(group=>group.length)){
+    for(const group of Object.values(groups)){if(group.length&&rows.length<12)rows.push(group.shift());}
   }
   if(!rows.length)return {rows:[],collectedAt};
   if(session?.user.id!==userId||activeBrand?.id!==brand.id)return {rows:[],collectedAt};
