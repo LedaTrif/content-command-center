@@ -1,24 +1,33 @@
 name: Collect Barcelona news
 on:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: '17 */4 * * *'
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/collect_news.py'
+      - '.github/workflows/collect-news.yml'
 permissions:
   contents: write
+concurrency:
+  group: content-news-collector
+  cancel-in-progress: false
 jobs:
   collect:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install feedparser
+      - run: pip install feedparser==6.0.11 beautifulsoup4==4.13.4
       - run: python scripts/collect_news.py
       - name: Save new ideas
         run: |
           git config user.name "Content News Bot"
           git config user.email "actions@users.noreply.github.com"
           git add data/news.json
-          git diff --cached --quiet || git commit -m "Update daily Barcelona news"
+          git diff --cached --quiet || git commit -m "Update official news, dated events and evergreen ideas"
+          git pull --rebase origin main
           git push
