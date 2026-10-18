@@ -50,7 +50,8 @@ def news():
             except ValueError: continue
         if re.search(r'emergència|alerta|insuficiència|aturades|alteracions',title,re.I) and published<NOW-timedelta(hours=24): continue
         summary='Новина от общината, публикувана на '+published.strftime('%d.%m.%Y')+'. '+city(clean(item.get('summary','')))[:500]+' Провери подробностите и дали има по-ново съобщение преди създаване на пост.'
-        result.append(row(title,item.link,'news','Барселона',summary,
+        tag='Имоти' if re.search(r'habitatg|viviend|lloguer|alquiler|hipotec|tanteig|compravenda',title+' '+clean(item.get('summary','')),re.I) else 'Барселона'
+        result.append(row(title,item.link,'news',tag,summary,
                           publishedAt=published.isoformat(),source='Ajuntament de Barcelona'))
     return result
 
@@ -103,6 +104,8 @@ EVERGREEN=[
  ('own-agenda','Как да намираш събития в своя квартал в Барселона','Общност','Покажи как се търси по дата, квартал и цена в официалната програма; практично ръководство с пример.','https://guia.barcelona.cat/'),
  ('joan-miro','Parc de Joan Miró: идея за кратка квартална разходка','Барселона','Пост за парка и пространствата за почивка. Провери работното време и подходящия маршрут.','https://www.barcelona.cat/ca/que-pots-fer-a-bcn/parcs-i-jardins/parc-de-joan-miro_92086012013.html'),
 ]
+
+EVERGREEN.extend([["property-nota-simple","Купуваш жилище в Барселона: какво да провериш в nota simple","Имоти","Списък за проверка на собствеността, ипотеките и вписаните тежести преди капаро. Обясни ограниченията на документа и провери актуалните условия за получаване.","https://sede.registradores.org/site/propiedad?lang=es"],["property-mortgage-budget","Преди огледите: как да изчислиш бюджета за жилище в Барселона","Имоти","Отдели собствени средства, ипотека, разходи по покупката и резерв. Не обещавай конкретен процент финансиране; провери актуалните условия и индивидуалната оценка на банката.","https://clientebancario.bde.es/pcb/es/blog/pensando-en-pedir-una-hipoteca.html"],["property-mortgage-compare","Две ипотечни оферти: какво да сравниш освен месечната вноска","Имоти","Практичен списък за TAE, лихва, срок, такси и обвързани продукти. Използвай само проверени условия и ясно обозначени примерни сметки.","https://clientebancario.bde.es/pcb/es/menu-horizontal/productosservici/financiacion/hipotecas/"],["property-buying-documents","Жилище втора ръка в Барселона: документите преди покупка","Имоти","Предложение за списък с документи за жилището и сградата, разходи и въпроси към продавача. Провери актуалните изисквания за Каталуния, преди да подготвиш публикацията.","https://www.habitatge.barcelona/sites/default/files/guia-servicios-ayudas-vivienda-barcelona.pdf"],["property-register-purchase","След нотариуса: вписването на покупката в Имотния регистър","Имоти","Обясни последователността на проверките и вписването, какви документи се използват и как купувачът следи приключването. Провери актуалните процедури.","https://sede.registradores.org/contenido/registro-de-la-propiedad/como-se-inscribe-una-compraventa/"]])
 
 def evergreen():
     return [row(title,url,'evergreen',tag,'Тема без срок: '+summary,key='evergreen|'+key,source='Редакционна идея — официален източник') for key,title,tag,summary,url in EVERGREEN]
