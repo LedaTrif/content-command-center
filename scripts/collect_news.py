@@ -67,8 +67,7 @@ def property_news():
         out.append(row(clean(item.title),item.link,'news','Имоти','Тема за проверка от официален източник. Провери датата на промяната и приложимостта за купувачи преди публикуване.',publishedAt=published.isoformat(),source=clean(item.get('source',{}).get('title','Google News'))))
     return out
 
-def events():
-    base='https://guia.barcelona.cat/es/'
+def events_page(base):
     soup=BeautifulSoup(fetch(base),'html.parser')
     result=[]
     for card in soup.select('.content-ag'):
@@ -107,6 +106,31 @@ EVERGREEN=[
 
 EVERGREEN.extend([["property-nota-simple","Купуваш жилище в Барселона: какво да провериш в nota simple","Имоти","Списък за проверка на собствеността, ипотеките и вписаните тежести преди капаро. Обясни ограниченията на документа и провери актуалните условия за получаване.","https://sede.registradores.org/site/propiedad?lang=es"],["property-mortgage-budget","Преди огледите: как да изчислиш бюджета за жилище в Барселона","Имоти","Отдели собствени средства, ипотека, разходи по покупката и резерв. Не обещавай конкретен процент финансиране; провери актуалните условия и индивидуалната оценка на банката.","https://clientebancario.bde.es/pcb/es/blog/pensando-en-pedir-una-hipoteca.html"],["property-mortgage-compare","Две ипотечни оферти: какво да сравниш освен месечната вноска","Имоти","Практичен списък за TAE, лихва, срок, такси и обвързани продукти. Използвай само проверени условия и ясно обозначени примерни сметки.","https://clientebancario.bde.es/pcb/es/menu-horizontal/productosservici/financiacion/hipotecas/"],["property-buying-documents","Жилище втора ръка в Барселона: документите преди покупка","Имоти","Предложение за списък с документи за жилището и сградата, разходи и въпроси към продавача. Провери актуалните изисквания за Каталуния, преди да подготвиш публикацията.","https://www.habitatge.barcelona/sites/default/files/guia-servicios-ayudas-vivienda-barcelona.pdf"],["property-register-purchase","След нотариуса: вписването на покупката в Имотния регистър","Имоти","Обясни последователността на проверките и вписването, какви документи се използват и как купувачът следи приключването. Провери актуалните процедури.","https://sede.registradores.org/contenido/registro-de-la-propiedad/como-se-inscribe-una-compraventa/"]])
 
+def events():
+    output=[]
+    urls=['https://guia.barcelona.cat/es/',
+          'https://guia.barcelona.cat/es/agenda-recomenada/la-meva-barcelona?ctg=infants',
+          'https://guia.barcelona.cat/es/agenda-recomenada/la-meva-barcelona?ctg=festes']
+    for url in urls:
+        try: output.extend(events_page(url))
+        except Exception as exc: print('::warning::Agenda '+url+': '+str(exc))
+    if not output: raise ValueError('No dated events found across agenda sections')
+    return output
+
+def transport_news():
+    feed=feedparser.parse(fetch('https://noticies.tmb.cat/feed/news'))
+    if not feed.entries: raise ValueError('TMB RSS returned no entries')
+    output=[]
+    for item in feed.entries:
+        stamp=item.get('published_parsed')
+        if not stamp: continue
+        published=datetime(*stamp[:6],tzinfo=timezone.utc)
+        if not NOW-timedelta(days=3)<=published<=NOW+timedelta(hours=2): continue
+        title=clean(item.title)
+        summary='Новина за транспорта, публикувана на '+published.strftime('%d.%m.%Y')+'. '+city(clean(item.get('summary','')))[:500]+' Провери актуалните дати и засегнатите линии преди публикуване.'
+        output.append(row(title,item.link,'news','Барселона',summary,publishedAt=published.isoformat(),source='TMB — официални съобщения'))
+    return output
+
 def evergreen():
     return [row(title,url,'evergreen',tag,'Тема без срок: '+summary,key='evergreen|'+key,source='Редакционна идея — официален източник') for key,title,tag,summary,url in EVERGREEN]
 
@@ -123,7 +147,7 @@ def collect():
     old=json.loads(path.read_text()) if path.exists() else []
     output=[];failures=[]
     with ThreadPoolExecutor(max_workers=3) as pool:
-        jobs={pool.submit(fn):kind for fn,kind in [(news,'news'),(events,'event'),(property_news,'property')]}
+        jobs={pool.submit(fn):kind for fn,kind in [(news,'news'),(events,'event'),(property_news,'property'),(transport_news,'transport')]}
         for future,kind in jobs.items():
             try: output.extend(future.result())
             except Exception as exc:
@@ -144,6 +168,6 @@ def collect():
     path.write_text(json.dumps(unique,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps({'counts':{kind:sum(i['kind']==kind for i in unique) for kind in ['news','event','evergreen']},'warnings':failures},ensure_ascii=False))
     for failure in failures: print('::warning::'+failure)
-    if len(failures)==3: raise SystemExit(1)
+    if len(failures)==len(jobs): raise SystemExit(1)
 
 if __name__=='__main__': collect()
