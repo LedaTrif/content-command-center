@@ -44,7 +44,8 @@ async function loadIdeas({manual=false}={}){
     const checked=new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'});
     ideasCheckMessage=imported.unsupported?'За този бранд още няма настроен новинарски поток.':
       imported.rows.length?`Добавени са ${imported.rows.length} нови идеи. Проверено в ${checked}.`:
-      `Няма нови идеи в наличния поток. Проверено в ${checked}.`;
+      `Няма непоказвани идеи в последно събрания поток. Вече разгледаните и отхвърлените не се добавят повторно. Проверено в ${checked}.`;
+    ideasCheckMessage+=' Източниците се проверяват автоматично на всеки 4 часа; този бутон зарежда последните събрани предложения.';
     if(imported.collectedAt)ideasCheckMessage+=' Потокът е обновен на '+new Date(imported.collectedAt).toLocaleString('bg-BG')+'.';
     render();
   }catch(error){
