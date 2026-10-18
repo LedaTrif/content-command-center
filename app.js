@@ -101,7 +101,7 @@ async function importCollectedIdeas(brand,userId,existingIdeas){
   const sources=['https://raw.githubusercontent.com/LedaTrif/content-command-center/main/data/news.json','data/news.json'];
   let feed;
   for(const source of sources){
-    try{const response=await fetch(source,{cache:'no-store',signal:AbortSignal.timeout(10000)});
+    try{const response=await fetch(source+(source.includes('?')?'&':'?')+'v='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(10000)});
       if(!response.ok)throw new Error('News feed unavailable');
       const value=await response.json();if(!Array.isArray(value))throw new Error('Invalid feed');feed=value;break;
     }catch(error){if(source===sources[sources.length-1])throw error;}
