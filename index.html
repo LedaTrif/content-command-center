@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20260916-2" />
   <link rel="stylesheet" href="multi.css?v=20260916-2" />
+  <link rel="stylesheet" href="articles.css?v=20261103-1" />
 </head>
 <body>
   <section class="auth-screen" id="authScreen">
@@ -49,7 +50,7 @@
     <main>
       <header>
         <div><p class="eyebrow" id="todayLabel"></p><h1>Добър ден, Леда <span>👋</span></h1><p>Твоят център за идеи, решения и съдържание.</p></div>
-        <div class="header-actions"><button class="icon-btn" id="profileBtn" title="Профил">◎</button><button class="ghost" id="createPostBtn">↗ Създай пост</button><button class="primary" id="addBtn">＋ Добави ръчно</button><button class="ghost" id="quickLogoutBtn">Изход</button></div>
+        <div class="header-actions"><button class="icon-btn" id="profileBtn" title="Профил">◎</button><button class="ghost" id="openArticlesBtn" hidden>Статии за сайта</button><button class="ghost" id="createPostBtn">↗ Създай пост</button><button class="primary" id="addBtn">＋ Добави ръчно</button><button class="ghost" id="quickLogoutBtn">Изход</button></div>
       </header>
 
       <section class="onboarding" id="onboarding" hidden>
@@ -130,10 +131,52 @@
       <div class="modal-actions"><button type="button" class="ghost" data-close>Отказ</button><button class="primary" type="submit">Запази бранда</button></div>
     </form>
   </dialog>
+  <dialog id="articlesDialog" aria-labelledby="articlesTitle">
+    <div class="modal-head"><div><p class="eyebrow">ZABARCELONA.COM</p><h2 id="articlesTitle">Статии за сайта</h2></div><button type="button" class="close" id="articlesClose" aria-label="Затвори статиите">×</button></div>
+    <p class="article-flow">Избери идея → прегледай готовата статия → одобри публикуването.</p>
+    <p id="articleConnection" role="status"></p>
+    <form id="articleQueueForm"><select id="articleIdeaSelect" aria-label="Идея за статия" required></select><button id="articleQueueBtn" class="primary" type="submit">Подготви статия</button></form>
+    <button id="articleRefreshBtn" type="button" class="ghost">Обнови списъка</button>
+    <p id="articlesMessage" role="status" aria-live="polite"></p>
+    <div id="articleList"></div>
+  </dialog>
+  <dialog id="articleEditorDialog" aria-labelledby="articleEditorTitle">
+    <div class="modal-head"><div><p class="eyebrow">ТВОЯТ ПРЕГЛЕД ПРЕДИ ПУБЛИКУВАНЕ</p><h2 id="articleEditorTitle">Статия</h2></div><button type="button" class="close" id="articleEditorClose" aria-label="Затвори прегледа">×</button></div>
+    <form id="articleEditorForm">
+      <div class="article-editor-grid">
+        <fieldset id="articleEditorFields">
+          <label>Заглавие<input name="title" maxlength="250" required></label>
+          <label>Текст<textarea name="body_markdown" rows="18" maxlength="100000" required></textarea></label>
+          <p class="article-help">За подзаглавие: ## Заглавие. За списък: - Точка. За линк: [текст](https://…). Прегледът показва как ще изглежда статията.</p>
+          <label>Кратко резюме<textarea name="excerpt" rows="3" maxlength="1000"></textarea></label>
+          <label>Кратък адрес (по желание)<input name="slug" maxlength="160" placeholder="razhodka-v-barselona"></label>
+          <label>Линк към одобрена снимка (по желание)<input name="image_url" type="url" maxlength="2000" placeholder="https://www.zabarcelona.com/wp-content/uploads/…"></label>
+          <p class="article-help">JPG, PNG или WebP до 5 MB от zabarcelona.com или снимките на командния център. Остави празно за статия без снимка.</p>
+          <label>Описание на снимката<input name="image_alt" maxlength="500"></label>
+          <details><summary>Източници и категория</summary>
+            <label>Източници — по един линк на ред<textarea name="sources" rows="4"></textarea></label>
+            <label>Категории (по желание)<select name="category_ids" multiple size="5" aria-label="Категории на статията"></select></label>
+            <p class="article-help">При празно поле се използва стандартната категория на сайта.</p>
+          </details>
+        </fieldset>
+        <section aria-label="Преглед на статията"><h3>Преглед</h3><div id="articlePreview" class="article-preview"></div></section>
+      </div>
+      <p id="articleEditorNote" role="status"></p><p id="articleEditorError" class="article-error" role="alert"></p>
+      <a id="articlePublishedLink" target="_blank" rel="noopener" hidden>Виж публикуваната статия ↗</a>
+      <div class="article-controls">
+        <button id="articleCancelBtn" type="button" class="ghost">Откажи подготовката</button>
+        <button id="articleRetryBtn" type="button" class="ghost" hidden>Подготви отново</button>
+        <button id="articleReconcileBtn" type="button" class="ghost" hidden>Провери в WordPress</button>
+        <button id="articleSaveBtn" type="submit" class="ghost">Запази промените</button>
+        <button id="articlePublishBtn" type="button" class="primary">Одобрявам и публикувай</button>
+      </div>
+    </form>
+  </dialog>
   <div id="toast"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.0/dist/umd/supabase.min.js"></script>
   <script src="supabase-config.js?v=20260916-3"></script>
-  <script src="app.js?v=20261019-archive"></script>
+  <script src="app.js?v=20261103-articles"></script>
+  <script type="module" src="articles.js?v=20261103-1"></script>
 </body>
 </html>
 

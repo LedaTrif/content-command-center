@@ -1,5 +1,13 @@
 # Content Command Center
 
+## WordPress articles
+
+ZaBarcelona now has a separate **Статии за сайта** workflow: request an article,
+review and edit the AI draft, then approve the exact version for WordPress.
+The server credentials are stored only in Supabase Edge Function Secrets.
+See [setup, safeguards and current limits](docs/wordpress-articles.md).
+Live WordPress publication requires configured credentials and an approved test.
+
 Content approval dashboard built first for **ZaBarcelona**, with a brand-configurable architecture for future businesses.
 
 ## MVP features

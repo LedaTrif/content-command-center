@@ -1,0 +1,2 @@
+[functions.article-publisher]
+verify_jwt = true
