@@ -10,6 +10,7 @@ const requireResult = result => {
 };
 const one = async query => requireResult(await query.maybeSingle());
 const requireRow = row => { if (!row) throw new ArticleError('Записът е променен или не е достъпен. Обнови списъка.',409); return row; };
+const checkDraft = input => { try { return validateDraft(input); } catch (error) { throw new ArticleError(error.message); } };
 export const articleMarker = row => `<!-- ccc-article:${row.id}:revision:${row.revision} -->`;
 export function matchesApprovedPost(post,row) {
   const expected=articleMarker(row)+'\n'+articleHtml(row.body_markdown,row.sources);
@@ -56,7 +57,7 @@ export function wordpressClient(site, username, password, fetcher = fetch) {
 export async function publishApproved(row, save, wp) {
   // This function receives only a row already atomically claimed by its owner.
   if (row.status!=='publishing' || row.approved_revision!==row.revision || row.approved_by!==row.user_id || !row.approved_at) throw new ArticleError('Липсва одобрение за тази версия.',403);
-  const draft = validateDraft(row), marker = articleMarker(row);
+  const draft = checkDraft(row), marker = articleMarker(row);
   try {
     if (draft.image_url && !row.wp_media_id) {
       const media = await wp.uploadImage(row);
@@ -123,7 +124,7 @@ export async function handleArticleAction({db,userId,body,env,fetcher=fetch}) {
   const cas = changes => one(db.from('article_requests').update(changes).eq('id',row.id).eq('user_id',userId).eq('revision',row.revision).eq('status',row.status).select('*')).then(requireRow);
   if (body.action==='save') {
     if (row.status!=='draft_ready' || row.wp_post_id || row.revision!==body.revision) throw new ArticleError('Обнови статията, преди да я редактираш.',409);
-    return {article:await cas({...validateDraft(body.draft),status:'draft_ready',error_message:null})};
+    return {article:await cas({...checkDraft(body.draft),status:'draft_ready',error_message:null})};
   }
   if (body.action==='retry') {
     if (!['failed','cancelled'].includes(row.status) || row.wp_post_id || row.approved_at) throw new ArticleError('Тази заявка изисква преглед.',409);
@@ -151,7 +152,7 @@ export async function handleArticleAction({db,userId,body,env,fetcher=fetch}) {
   }
   if (row.status==='published') return {article:row};
   if (row.status!=='draft_ready' || row.revision!==body.revision || body.confirm!==true) throw new ArticleError('Прегледай актуалната версия и потвърди публикуването.',409);
-  validateDraft(row);
+  checkDraft(row);
   // Check the credentials before claiming the article or writing to WordPress.
   const wpUser=await wp.request('users/me?context=edit');
   if (!wpUser.capabilities?.publish_posts || !wpUser.capabilities?.edit_posts || (row.image_url&&!wpUser.capabilities?.upload_files)) throw new ArticleError('WordPress потребителят няма нужните права.',403);
